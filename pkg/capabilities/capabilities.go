@@ -157,18 +157,24 @@ func MergeCapabilities(base, adds, drops []string) ([]string, error) {
 	}
 
 	if stringInSlice(All, capDrop) {
+		if stringInSlice(All, capAdd) {
+			return nil, errors.New("adding all caps and removing all caps not allowed")
+		}
 		// "Drop" all capabilities; return what's in capAdd instead
 		return capAdd, nil
 	}
 
 	if stringInSlice(All, capAdd) {
-		// "Add" all capabilities;
-		return BoundingSet()
-	}
-
-	for _, add := range capAdd {
-		if stringInSlice(add, capDrop) {
-			return nil, errors.Errorf("capability %q cannot be dropped and added", add)
+		base, err = BoundingSet()
+		if err != nil {
+			return nil, err
+		}
+		capAdd = []string{}
+	} else {
+		for _, add := range capAdd {
+			if stringInSlice(add, capDrop) {
+				return nil, errors.Errorf("capability %q cannot be dropped and added", add)
+			}
 		}
 	}
 
