@@ -201,7 +201,7 @@ func DefaultConfig() (*Config, error) {
 			HTTPProxy:  true,
 			Init:       false,
 			InitPath:   "",
-			IPCNS:      "private",
+			IPCNS:      "sharable",
 			LogDriver:  defaultLogDriver(),
 			LogSizeMax: DefaultLogSizeMax,
 			NetNS:      "private",
