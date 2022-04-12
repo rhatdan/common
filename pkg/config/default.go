@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 
 	nettypes "github.com/containers/common/libnetwork/types"
 	"github.com/containers/common/pkg/apparmor"
@@ -246,6 +247,7 @@ func defaultMachineConfig() MachineConfig {
 		Image:    getDefaultMachineImage(),
 		Memory:   2048,
 		User:     getDefaultMachineUser(),
+		Volumes:  []string{"$HOME:$HOME"},
 	}
 }
 
@@ -592,4 +594,47 @@ func (c *Config) LogDriver() string {
 // MachineEnabled returns if podman is running inside a VM or not
 func (c *Config) MachineEnabled() bool {
 	return c.Engine.MachineEnabled
+}
+
+// MachineVolumes returns volumes to mount into the VM
+func (c *Config) MachineVolumes() ([]string, error) {
+	return machineVolumes(c.Machine.Volumes)
+}
+
+func machineVolumes(volumes []string) ([]string, error) {
+	getenv := func(val string) (string, error) {
+		newval := val
+		if strings.HasPrefix(val, "$") {
+			newval = os.Getenv(val[1:])
+			if newval == "" {
+				return "", errors.Errorf("invalid machine volume %s environment variable is not set", val)
+			}
+		}
+		return newval, nil
+	}
+
+	translatedVolumes := []string{}
+	for _, v := range volumes {
+		split := strings.Split(v, ":")
+		var val3 string
+		switch len(split) {
+		case 3:
+			val3 = ":" + split[2]
+		case 2:
+			break
+		default:
+			return nil, errors.Errorf("invalid machine volume %s", v)
+		}
+		val0, err := getenv(split[0])
+		if err != nil {
+			return nil, err
+		}
+		val1, err := getenv(split[1])
+		if err != nil {
+			return nil, err
+		}
+
+		translatedVolumes = append(translatedVolumes, fmt.Sprintf("%s:%s%s", val0, val1, val3))
+	}
+	return translatedVolumes, nil
 }
