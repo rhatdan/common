@@ -57,3 +57,20 @@ func testNewRuntime(t *testing.T, options ...testNewRuntimeOptions) (runtime *Ru
 	require.NotNil(t, sys)
 	return runtime, cleanup
 }
+
+func TestTmpdir(t *testing.T) {
+	tmpStr := "TMPDIR"
+
+	tmp, tmpSet := os.LookupEnv(tmpStr)
+	os.Unsetenv(tmpStr)
+	require.Equal(t, tmpdir(), "/var/tmp")
+
+	os.Setenv(tmpStr, "/tmp/test")
+	require.Equal(t, "/tmp/test", tmpdir())
+	if tmpSet {
+		os.Setenv(tmpStr, tmp)
+	} else {
+		os.Unsetenv(tmpStr)
+	}
+
+}

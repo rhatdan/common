@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/containers/common/pkg/config"
 	"github.com/containers/image/v5/docker/reference"
 	"github.com/containers/image/v5/pkg/shortnames"
 	storageTransport "github.com/containers/image/v5/storage"
@@ -23,9 +24,18 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // tmpdir returns a path to a temporary directory.
 func tmpdir() string {
-	tmpdir := os.Getenv("TMPDIR")
+	var tmpdir string
+	defaultContainerConfig, err := config.Default()
+	if err == nil {
+		tmpdir, err := defaultContainerConfig.ImageCopyTmpDir()
+		if err == nil {
+			return tmpdir
+		}
+	}
+	logrus.Warnf("Failed to get container config for copy options: %v", err)
+	tmpdir = os.Getenv("TMPDIR")
 	if tmpdir == "" {
-		tmpdir = "/var/tmp"
+		return "/var/tmp"
 	}
 
 	return tmpdir
