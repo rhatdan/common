@@ -43,6 +43,9 @@ const (
 	// _defaultTransport is a prefix that we apply to an image name to check
 	// docker hub first for the image.
 	_defaultTransport = "docker://"
+
+	// _defaultImageVolumeMode is a mode to handle buildint image volumes
+	_defaultImageVolumeMode = "bind"
 )
 
 var (
@@ -294,6 +297,7 @@ func defaultConfigFromMemory() (*EngineConfig, error) {
 	}
 	c.HooksDir = DefaultHooksDirs
 	c.ImageDefaultTransport = _defaultTransport
+	c.ImageVolumeMode = _defaultImageVolumeMode
 	c.StateType = BoltDBStateStore
 
 	c.ImageBuildFormat = "oci"
