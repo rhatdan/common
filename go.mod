@@ -4,8 +4,8 @@ go 1.16
 
 require (
 	github.com/BurntSushi/toml v1.1.0
-	github.com/containerd/containerd v1.6.4
-	github.com/containernetworking/cni v1.1.0
+	github.com/containerd/containerd v1.6.6
+	github.com/containernetworking/cni v1.1.1
 	github.com/containernetworking/plugins v1.1.1
 	github.com/containers/image/v5 v5.21.1
 	github.com/containers/ocicrypt v1.1.4-0.20220428134531-566b808bdf6f
