@@ -138,9 +138,17 @@ func defaultNetworkBackend(store storage.Store, conf *config.Config) (backend ty
 		return "", err
 	}
 	if len(cons) == 0 {
-		imgs, err := store.Images()
+		allImages, err := store.Images()
 		if err != nil {
 			return "", err
+		}
+		var imgs []storage.Image
+		// ignore ReadOnly images
+		for _, i := range allImages {
+			if i.ReadOnly {
+				continue
+			}
+			imgs = append(imgs, i)
 		}
 		if len(imgs) == 0 {
 			cniInterface, err := getCniInterface(conf)
