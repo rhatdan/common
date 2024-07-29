@@ -382,8 +382,11 @@ func addFIPSModeSubscription(mounts *[]rspec.Mount, containerRunDir, mountPoint,
 		return fmt.Errorf("chown fips-config file: %w", err)
 	}
 
+	// Add policyConfig mount point iff it or its parent directory
+	// are not currently a mount point.
 	policyConfig := "/etc/crypto-policies/config"
-	if !mountExists(*mounts, policyConfig) {
+	if !mountExists(*mounts, policyConfig) &&
+		!mountExists(*mounts, filepath.Dir(policyConfig)) {
 		m := rspec.Mount{
 			Source:      cryptoPoliciesConfigFile,
 			Destination: policyConfig,
